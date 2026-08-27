@@ -39,8 +39,7 @@ Two transformation concerns are kept conceptually separate so each can evolve in
 
 (b) classification — assigning each complaint to a category, scoring sentiment using AI or ML
 
-Assumption: complaint categorization is done with an automated classification model rather than manual tagging, since manual tagging cannot keep pace with thousands of daily complaints; a manual review queue handles low-confidence cases.
-
+Assumption: complaint categorization is done with an automated classification model rather than manual tagging, since manual tagging cannot keep pace with thousands of daily complaints;
 # 4. Storage options
 
 Both a data lake and a data warehouse are used, because they serve different needs. The data lake is the raw/landing zone that stores every record exactly as ingested (for audit and reprocessing). The warehouse holds the curated data reshaped into aggregated, query-ready tables, optimized for the dashboards and ad-hoc SQL that the reporting team already relies on.
