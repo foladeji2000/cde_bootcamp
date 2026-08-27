@@ -16,7 +16,7 @@ Four source types are in scope, each with a different shape and cadence:
 | SMS | Customer text messages | Structured text export | Streaming / near real-time |
 | Website forms | Web form submissions | Structured (form fields, JSON) | Near real-time to small batches |
 
-# Note: All the sources can be ingested as batch or real-time depending on the business requirements
+Note: All the sources can be ingested as batch or real-time depending on the business requirements
 
 # 2. Ingestion strategy
 
