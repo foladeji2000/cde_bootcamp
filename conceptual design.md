@@ -9,8 +9,16 @@ see below the conceptual design architecture
 1. Source identification
 
 Four source types are in scope, each with a different shape and cadence:
+| Source | Type | Format | Frequency |
+|---|---|---|---|
+| Social media | Public posts & mentions | Semi-structured JSON (API response) | Streaming / near real-time |
+| Call center | Agent notes & call transcripts | Files (CSV / text exports) | Batch (end of shift or daily) |
+| SMS | Customer text messages | Structured text (telecom gateway) | Streaming / near real-time |
+| Website forms | Web form submissions | Structured (form fields, JSON) | Near real-time to small batches |
 
-Social media — posts and mentions pulled from public APIs, semi-structured JSON, arrives continuously (near real-time).
+
+
+Social media — posts or mentions pulled from social media APIs, as a semi-structured format (for Example JSON), arrives continuously (near real-time).
 Call center logs — agent notes and call transcripts exported as files (CSV/text), arrives in batches at the end of an agent's shift or daily.
 SMS — structured text messages from a telecom gateway, arrives continuously (near real-time).
 Website forms — structured submissions from a web form, arrives as discrete events throughout the day (near real-time to small batches).
