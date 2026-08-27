@@ -35,18 +35,18 @@ Social media and SMS are the two sources that likely need real-time handling. Bo
 
 Two transformation concerns are kept conceptually separate so each can evolve independently:
 
-(a) Cleaning and standardization — deduplicating repeated complaints (e.g. a customer who tweets and also calls), normalizing timestamps and languages, validating that required fields are       present and manny more as required
+(a) **Cleaning and standardization** — deduplicating repeated complaints (e.g. a customer who tweets and also calls), normalizing timestamps and languages, validating that required fields are       present and manny more as required
 
-(b) classification — assigning each complaint to a category, scoring sentiment using AI or ML
+(b) **classification** — assigning each complaint to a category, scoring sentiment using AI or ML
 
 Assumption: complaint categorization is done with an automated classification model rather than manual tagging, since manual tagging cannot keep pace with thousands of daily complaints;
 # 4. Storage options
 
-Both a data lake and a data warehouse are used, because they serve different needs. The data lake is the raw/landing zone that stores every record exactly as ingested (for audit and reprocessing). The warehouse holds the curated data reshaped into aggregated, query-ready tables, optimized for the dashboards and ad-hoc SQL that the reporting team already relies on.
+Both a **data lake** and a **data warehouse** are used, because they serve different needs. The data lake is the raw/landing zone that stores every record exactly as ingested (for audit and reprocessing). The warehouse holds the curated data reshaped into aggregated, query-ready tables, optimized for the dashboards and ad-hoc SQL that the reporting team already relies on.
 
 # 5. Serving
 
-The serving layer exposes the curated data through two paths: pre-built dashboards and scheduled reports for management and the reporting team, and a query/API layer for analysts or other internal systems that need on-demand access (for example, a customer service tool that wants to show a caller's recent complaint history). Access is read-only at this layer — no downstream consumer writes back into the pipeline.
+The serving layer exposes the curated data through two paths: **pre-built dashboards and scheduled reports** for management and the reporting team, **and a query/API layer** for analysts or other internal systems that need on-demand access (for example, a customer service tool that wants to show a caller's recent complaint history). Access is read-only at this layer — no downstream consumer writes back into the pipeline.
 
 # 6. Orchestration and monitoring
 
@@ -58,39 +58,35 @@ Conceptually, the pipeline is expected to run in a managed, cloud-hosted environ
 
 
 # Design choices
-Ingestion method varies by source, not one-size-fits-all — API ingestion for social media, SMS, and website forms; file uploads for call center logs (or API ingestion if the call center system exposes one). Social media and SMS are treated as continuous streams so real-time spikes are visible within minutes; call center and forms don't need that.
+1. Ingestion method varies by source, not one-size-fits-all — API ingestion for social media, SMS, and website forms; file uploads for call center logs (or API ingestion if the call center system exposes one). Social media and SMS are treated as continuous streams so real-time spikes are visible within minutes; call center and forms don't need that.
 
-Cleaning and classification are kept as separate stages, not one combined step — standardization rules (dedup, normalize, validate) change rarely, while classification/sentiment logic (AI/ML-driven) is expected to be tuned often. Keeping them apart means one can evolve without touching the other.
+2. Cleaning and classification are kept as separate stages, not one combined step — standardization rules (dedup, normalize, validate) change rarely, while classification/sentiment logic (AI/ML-driven) is expected to be tuned often. Keeping them apart means one can evolve without touching the other.
 
-Storage is sequential: raw → curated lake → warehouse, not two parallel destinations. The lake holds full-grain cleaned/enriched data (cheap, format-agnostic, reusable for more than just reporting); the warehouse holds a reshaped, aggregated subset loaded from the lake, built specifically for dashboards and ad-hoc SQL.
+3. Every record is tagged with source, ingestion timestamp, and a unique ID at the point of ingestion — this is what makes it possible to trace a complaint back to its origin later, and to reprocess cleanly if logic changes.
 
-Every record is tagged with source, ingestion timestamp, and a unique ID at the point of ingestion — this is what makes it possible to trace a complaint back to its origin later, and to reprocess cleanly if logic changes.
-
-Serving is read-only — downstream consumers (dashboards, APIs, other internal tools) query curated data; nothing writes back into the pipeline from that layer.
+4. Serving is read-only — downstream consumers (dashboards, APIs, other internal tools) query curated data; nothing writes back into the pipeline from that layer.
 
 # Assumptions / thought process
-Near-real-time (minutes) is an acceptable definition of "real-time" for this use case — sub-second processing isn't required for complaint handling.
+1. Near-real-time (minutes) is an acceptable definition of "real-time" for this use case — sub-second processing isn't required for complaint handling.
 
-Classification can be automated (AI/ML) for the majority of complaints, with a manual review queue for low-confidence cases, since manual tagging can't keep pace with thousands of daily complaints.
+2. Classification can be automated (AI/ML) for the majority of complaints, with a manual review queue for low-confidence cases, since manual tagging can't keep pace with thousands of daily complaints.
 
-Call center data is available as structured/semi-structured exports (or via an API), not raw audio.
+3. Call center data is available as structured/semi-structured exports (or via an API), not raw audio.
 
-Customer identity can be resolved well enough across channels to deduplicate and enrich (e.g. via phone number or account ID).
-
-Keeping a curated lake stage is worth it because there's more than one downstream consumer of curated data (reporting today, potentially ML retraining or ad-hoc analysis later) — if dashboards/SQL were the only consumer, going straight from cleaning into the warehouse would be a reasonable simplification instead.
+4. Customer identity can be resolved well enough across channels to deduplicate and enrich (e.g. via phone number or account ID).
 
 # Challenges or unknowns
-Identity resolution — matching the same customer across social media, SMS, calls, and web forms isn't always reliable; the matching strategy (phone number, account ID, fuzzy matching) still needs to be defined.
+1. Identity resolution — matching the same customer across social media, SMS, calls, and web forms isn't always reliable; the matching strategy (phone number, account ID, fuzzy matching) still needs to be defined.
 
-Classification accuracy — an AI/ML model will misclassify some complaints; acceptable error rate and the design of the manual review queue are undefined.
+2. Classification accuracy — an AI/ML model will misclassify some complaints; acceptable error rate and the design of the manual review queue are undefined.
 
-Multilingual content — complaints may arrive in multiple languages, affecting both cleaning and classification.
+3. Multilingual content — complaints may arrive in multiple languages, affecting both cleaning and classification.
 
-Data volume growth — the design assumes today's volumes; a spike (e.g. a network outage driving a surge in complaints) needs to be absorbed without backing up the pipeline.
+4. Data volume growth — the design assumes today's volumes; a spike (e.g. a network outage driving a surge in complaints) needs to be absorbed without backing up the pipeline.
 
-Privacy and retention — how long raw complaint data (which may contain personal information) should be retained isn't yet defined, and who has access to which layer (raw vs. curated vs. warehouse) needs governance rules.
+5. Privacy and retention — how long raw complaint data (which may contain personal information) should be retained isn't yet defined, and who has access to which layer (raw vs. curated vs. warehouse) needs governance rules.
 
-Call center ingestion path — whether file export or API ingestion is used depends on a system capability that isn't confirmed yet.
+6. Call center ingestion path — whether file export or API ingestion is used depends on a system capability that isn't confirmed yet.
 
 
 
