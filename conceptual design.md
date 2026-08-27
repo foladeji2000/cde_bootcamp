@@ -1,7 +1,7 @@
 # Conceptual data pipeline — Beejan Technologies
 
 This document describes the conceptual design for a data pipeline that unifies customer complaint data from 4 sources (social media, call center logs, SMS, and website forms), and turns it into a single, trustworthy source for reporting.
-see below the conceptual design architecture 
+
 
 ![Architecture Diagram](Beejan_Complaint_Pipeline.png)
 
