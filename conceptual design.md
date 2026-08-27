@@ -87,32 +87,3 @@ Conceptually, the pipeline is expected to run in a managed, cloud-hosted environ
 5. Privacy and retention — how long raw complaint data (which may contain personal information) should be retained isn't yet defined, and who has access to which layer (raw vs. curated vs. warehouse) needs governance rules.
 
 6. Call center ingestion path — whether file export or API ingestion is used depends on a system capability that isn't confirmed yet.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Key assumptions
-Near-real-time (minutes) is sufficient; sub-second latency is not a requirement.
-An automated classification model can categorize the majority of complaints, with a manual queue for edge cases.
-Call center data is available as structured or semi-structured file exports, not raw audio.
-Customer identity can be resolved across channels well enough to deduplicate and enrich (e.g. via phone number or account ID).
-Data volumes are large enough to justify a lake plus warehouse split, rather than a single store.
-Challenges and open questions
-Identity resolution — matching the same customer across social media, SMS, calls, and web forms is not always reliable and needs a defined matching strategy.
-Classification accuracy — automated categorization will misclassify some complaints; the acceptable error rate and the design of the manual review queue still need to be defined.
-Multilingual content — complaints may arrive in multiple languages, which affects both cleaning and classification.
-Data volume growth — the design assumes today's volumes; a large spike (e.g. a network outage causing a surge in complaints) needs to be handled gracefully rather than causing pipeline backlog.
-Privacy and retention — how long raw complaint data (which may contain personal information) should be retained is not yet defined.
-Other notes
-
-This design intentionally keeps raw and curated data separate so that if the classification or cleaning logic changes later, historical raw data can be reprocessed without needing to re-collect it from the original sources. The same reasoning is why cleaning and enrichment are shown as two distinct steps rather than one: standardization rules change rarely, while classification/enrichment logic is expected to be tuned often.
