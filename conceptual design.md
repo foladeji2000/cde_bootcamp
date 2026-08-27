@@ -35,9 +35,9 @@ Social media and SMS are the two sources that likely need real-time handling. Bo
 
 Two transformation concerns are kept conceptually separate so each can evolve independently:
 
-Cleaning and standardization — deduplicating repeated complaints (e.g. a customer who tweets and also calls), normalizing timestamps and languages, validating that required fields are present and manny more as required
+(a) Cleaning and standardization — deduplicating repeated complaints (e.g. a customer who tweets and also calls), normalizing timestamps and languages, validating that required fields are       present and manny more as required
 
-classification — assigning each complaint to a category, scoring sentiment using AI or ML
+(b) classification — assigning each complaint to a category, scoring sentiment using AI or ML
 
 Assumption: complaint categorization is done with an automated classification model rather than manual tagging, since manual tagging cannot keep pace with thousands of daily complaints; a manual review queue handles low-confidence cases.
 
